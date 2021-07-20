@@ -1,9 +1,11 @@
+import { Cluster, OpenshiftVersionOptionType } from '../../../common';
 import { ClusterDetailsValues } from '../../../common/components/clusterWizard/types';
 import { NetworkConfigurationValues } from '../../../common/types/clusters';
 import {
   AgentK8sResource,
   ClusterDeploymentK8sResource,
   AgentClusterInstallK8sResource,
+  ClusterCIMExtended,
 } from '../../types';
 import { ClusterImageSetK8sResource } from '../../types/k8s/cluster-image-set';
 
@@ -46,41 +48,59 @@ export type ClusterDeploymentHostsTablePropsActions = Pick<
 >;
 */
 
-export type ClusterDeploymentWizardStepsType = 'cluster-details' | 'networking';
+export type ClusterDeploymentWizardStepsType = 'cluster-details' | 'hosts-selection' | 'networking';
 
 export type ClusterDeploymentDetailsProps = {
   defaultPullSecret: string;
+
   clusterImages: ClusterImageSetK8sResource[];
   clusterDeployment: ClusterDeploymentK8sResource;
   agentClusterInstall: AgentClusterInstallK8sResource;
   agents: AgentK8sResource[];
   pullSecretSet: boolean;
+
   usedClusterNames: string[];
 };
 
 export type ClusterDeploymentDetailsValues = ClusterDetailsValues;
-
 export type ClusterDeploymentNetworkingValues = NetworkConfigurationValues;
+export type ClusterDeploymentHostsSelectionValues = {
+  hostCount: number;
+  useMastersAsWorkers: boolean;
+  labels: string[];
+  autoSelectMasters: boolean;
+};
 
 export type ClusterDeploymentDetailsStepProps = ClusterDeploymentDetailsProps & {
   onSaveDetails: (values: ClusterDeploymentDetailsValues) => Promise<string | void>;
   onClose: () => void;
 };
 
-export type ClusterDeploymentDetailsNetworkingProps = {
+export type ClusterDeploymentDetailsNetworkingProps = ClusterDeploymentHostsTablePropsActions & {
   clusterDeployment: ClusterDeploymentK8sResource;
   agentClusterInstall: AgentClusterInstallK8sResource;
   agents: AgentK8sResource[];
   pullSecretSet: boolean;
-
   onSaveNetworking: (values: ClusterDeploymentNetworkingValues) => Promise<string | void>;
   onClose: () => void;
-} & ClusterDeploymentHostsTablePropsActions;
+};
 
-export type ClusterDeploymentWizardProps = ClusterDeploymentDetailsProps & {
-  className?: string;
+export type ClusterDeploymentHostsSelectionProps = {};
 
+export type ClusterDeploymentHostSelectionStepProps = ClusterDeploymentHostsSelectionProps & {
+  clusterDeployment: ClusterDeploymentK8sResource;
+  agentClusterInstall: AgentClusterInstallK8sResource;
+  agents: AgentK8sResource[];
+  onSaveHostsSelection: (values: ClusterDeploymentHostsSelectionValues) => Promise<string | void>;
   onClose: () => void;
-  onSaveDetails: ClusterDeploymentDetailsStepProps['onSaveDetails'];
-  onSaveNetworking: ClusterDeploymentDetailsNetworkingProps['onSaveNetworking'];
-} & ClusterDeploymentHostsTablePropsActions;
+};
+
+export type ClusterDeploymentWizardProps = ClusterDeploymentDetailsProps &
+  ClusterDeploymentHostsTablePropsActions & {
+    className?: string;
+
+    onClose: () => void;
+    onSaveDetails: ClusterDeploymentDetailsStepProps['onSaveDetails'];
+    onSaveNetworking: ClusterDeploymentDetailsNetworkingProps['onSaveNetworking'];
+    onSaveHostsSelection: ClusterDeploymentHostSelectionStepProps['onSaveHostsSelection'];
+  };
