@@ -102,9 +102,12 @@ const ClusterDeploymentDetailsStep: React.FC<ClusterDeploymentDetailsStepProps> 
     usedClusterNames,
   });
 
+  const next = () => setCurrentStepId('hosts-selection');
+
   const handleSubmit = async (values: ClusterDeploymentDetailsValues) => {
     try {
       await onSaveDetails(values);
+      next();
     } catch (error) {
       addAlert({
         title: 'Failed to save ClusterDeployment',
@@ -123,9 +126,9 @@ const ClusterDeploymentDetailsStep: React.FC<ClusterDeploymentDetailsStepProps> 
         const handleOnNext = () => {
           if (dirty) {
             submitForm();
+          } else {
+            next();
           }
-          // TODO(mlibra): check behaviour if submit fails, no transition in that case
-          setCurrentStepId('networking'); // TODO(mlibra): fix the next step to Hosts once ready
         };
 
         const footer = (
