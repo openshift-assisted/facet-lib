@@ -85,7 +85,9 @@ export type ClusterDeploymentDetailsNetworkingProps = ClusterDeploymentHostsTabl
   onClose: () => void;
 };
 
-export type ClusterDeploymentHostsSelectionProps = {};
+export type ClusterDeploymentHostsSelectionProps = {
+  usedAgentlabels?: string[];
+};
 
 export type ClusterDeploymentHostSelectionStepProps = ClusterDeploymentHostsSelectionProps & {
   clusterDeployment: ClusterDeploymentK8sResource;
@@ -96,6 +98,7 @@ export type ClusterDeploymentHostSelectionStepProps = ClusterDeploymentHostsSele
 };
 
 export type ClusterDeploymentWizardProps = ClusterDeploymentDetailsProps &
+  ClusterDeploymentHostsSelectionProps &
   ClusterDeploymentHostsTablePropsActions & {
     className?: string;
 
