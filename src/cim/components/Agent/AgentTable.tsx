@@ -26,6 +26,8 @@ export const useAgentTableActions = ({
   canDelete,
   canEditHost,
   canEditRole,
+  onHostSelected,
+  selectedHostIds,
   agents,
 }: ClusterDeploymentHostsTablePropsActions & {
   agents: AgentK8sResource[];
@@ -50,8 +52,25 @@ export const useAgentTableActions = ({
       canDelete: getAgentCallback(canDelete, agents),
       canEditHost: getAgentCallback(canEditHost, agents),
       canEditRole: getAgentCallback(canEditRole, agents),
+      onHostSelected: onHostSelected
+        ? (host: Host, selected: boolean) => {
+            const agent = agents.find((a) => a.metadata?.uid === host.id) as AgentK8sResource;
+            onHostSelected(agent, selected);
+          }
+        : undefined,
+      selectedHostIds,
     }),
-    [onDeleteHost, onEditHost, onEditRole, canDelete, canEditHost, canEditRole, agents],
+    [
+      onDeleteHost,
+      onEditHost,
+      onEditRole,
+      canDelete,
+      canEditHost,
+      canEditRole,
+      onHostSelected,
+      selectedHostIds,
+      agents,
+    ],
   );
 
 const defaultColumns = [
@@ -77,13 +96,14 @@ const AgentTable: React.FC<AgentTableProps> = ({
   className,
   columns = defaultColumns,
   hostToHostTableRow,
-  ...actions
+  ...hostActions
 }) => {
   const tableCallbacks = useAgentTableActions({
-    ...actions,
+    ...hostActions,
     agents,
   });
   const restHosts = getAIHosts(agents);
+
   return (
     <HostsTable
       hosts={restHosts}
