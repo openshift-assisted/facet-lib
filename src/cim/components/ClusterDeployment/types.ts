@@ -69,9 +69,7 @@ export type ClusterDeploymentNetworkingValues = NetworkConfigurationValues;
 export type ClusterDeploymentHostsSelectionValues = {
   hostCount: number;
   useMastersAsWorkers: boolean;
-  masterLabels: string[];
-  workerLabels?: string[];
-  autoSelectMasters: boolean;
+  agentLabels: string[];
   locations: string[];
 };
 
@@ -97,11 +95,11 @@ export type AgentSelectorChageProps = {
 export type ClusterDeploymentHostsSelectionProps = {
   usedAgentLabels?: string[];
   agentLocations?: AgentLocation[];
-  matchingMastersCount?: number;
-  matchingWorkersCount?: number;
+  matchingAgentsCount?: number;
+  // matchingWorkersCount?: number;
   allAgentsCount?: number;
-  onMasterAgentSelectorChange: (props: AgentSelectorChageProps) => void;
-  onWorkerAgentSelectorChange: (props: AgentSelectorChageProps) => void;
+  onAgentSelectorChange: (props: AgentSelectorChageProps) => void;
+  // onWorkerAgentSelectorChange: (props: AgentSelectorChageProps) => void;
 };
 
 export type ClusterDeploymentHostSelectionStepProps = ClusterDeploymentHostsSelectionProps & {
