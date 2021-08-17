@@ -27,10 +27,10 @@ export const useAgentTableActions = ({
   canEditHost,
   canEditRole,
   onHostSelected,
-  selectedHostIds,
   agents,
 }: ClusterDeploymentHostsTablePropsActions & {
   agents: AgentK8sResource[];
+  onHostSelected?: (agent: AgentK8sResource, selected: boolean) => void;
 }): HostsTableActions =>
   React.useMemo(
     () => ({
@@ -58,7 +58,6 @@ export const useAgentTableActions = ({
             onHostSelected(agent, selected);
           }
         : undefined,
-      selectedHostIds,
     }),
     [
       onDeleteHost,
@@ -68,7 +67,6 @@ export const useAgentTableActions = ({
       canEditHost,
       canEditRole,
       onHostSelected,
-      selectedHostIds,
       agents,
     ],
   );
@@ -89,6 +87,8 @@ type AgentTableProps = ClusterDeploymentHostsTablePropsActions & {
   className?: string;
   columns?: HostsTableProps['columns'];
   hostToHostTableRow?: HostsTableProps['hostToHostTableRow'];
+  onHostSelected?: (agent: AgentK8sResource, selected: boolean) => void;
+  selectedHostIds?: string[];
 };
 
 const AgentTable: React.FC<AgentTableProps> = ({
@@ -96,6 +96,7 @@ const AgentTable: React.FC<AgentTableProps> = ({
   className,
   columns = defaultColumns,
   hostToHostTableRow,
+  selectedHostIds,
   ...hostActions
 }) => {
   const tableCallbacks = useAgentTableActions({
@@ -112,6 +113,7 @@ const AgentTable: React.FC<AgentTableProps> = ({
       className={className}
       AdditionalNTPSourcesDialogToggleComponent={AdditionalNTPSourcesDialogToggle}
       hostToHostTableRow={hostToHostTableRow}
+      selectedHostIds={selectedHostIds}
       {...tableCallbacks}
     />
   );
