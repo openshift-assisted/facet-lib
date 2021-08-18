@@ -110,7 +110,7 @@ const AgentTable: React.FC<AgentTableProps> = ({
       hosts={restHosts}
       EmptyState={() => <div>no hosts</div>}
       columns={columns}
-      className={className}
+      className={`agents-table ${className || ''}`}
       AdditionalNTPSourcesDialogToggleComponent={AdditionalNTPSourcesDialogToggle}
       hostToHostTableRow={hostToHostTableRow}
       selectedHostIds={selectedHostIds}
