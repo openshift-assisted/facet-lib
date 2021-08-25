@@ -26,9 +26,11 @@ export const useAgentTableActions = ({
   canDelete,
   canEditHost,
   canEditRole,
+  onHostSelected,
   agents,
 }: ClusterDeploymentHostsTablePropsActions & {
   agents: AgentK8sResource[];
+  onHostSelected?: (agent: AgentK8sResource, selected: boolean) => void;
 }): HostsTableActions =>
   React.useMemo(
     () => ({
@@ -50,8 +52,23 @@ export const useAgentTableActions = ({
       canDelete: getAgentCallback(canDelete, agents),
       canEditHost: getAgentCallback(canEditHost, agents),
       canEditRole: getAgentCallback(canEditRole, agents),
+      onHostSelected: onHostSelected
+        ? (host: Host, selected: boolean) => {
+            const agent = agents.find((a) => a.metadata?.uid === host.id) as AgentK8sResource;
+            onHostSelected(agent, selected);
+          }
+        : undefined,
     }),
-    [onDeleteHost, onEditHost, onEditRole, canDelete, canEditHost, canEditRole, agents],
+    [
+      onDeleteHost,
+      onEditHost,
+      onEditRole,
+      canDelete,
+      canEditHost,
+      canEditRole,
+      onHostSelected,
+      agents,
+    ],
   );
 
 const defaultColumns = [
@@ -70,6 +87,8 @@ type AgentTableProps = ClusterDeploymentHostsTablePropsActions & {
   className?: string;
   columns?: HostsTableProps['columns'];
   hostToHostTableRow?: HostsTableProps['hostToHostTableRow'];
+  onHostSelected?: (agent: AgentK8sResource, selected: boolean) => void;
+  selectedHostIds?: string[];
 };
 
 const AgentTable: React.FC<AgentTableProps> = ({
@@ -77,21 +96,24 @@ const AgentTable: React.FC<AgentTableProps> = ({
   className,
   columns = defaultColumns,
   hostToHostTableRow,
-  ...actions
+  selectedHostIds,
+  ...hostActions
 }) => {
   const tableCallbacks = useAgentTableActions({
-    ...actions,
+    ...hostActions,
     agents,
   });
   const restHosts = getAIHosts(agents);
+
   return (
     <HostsTable
       hosts={restHosts}
       EmptyState={() => <div>no hosts</div>}
       columns={columns}
-      className={className}
+      className={`agents-table ${className || ''}`}
       AdditionalNTPSourcesDialogToggleComponent={AdditionalNTPSourcesDialogToggle}
       hostToHostTableRow={hostToHostTableRow}
+      selectedHostIds={selectedHostIds}
       {...tableCallbacks}
     />
   );
