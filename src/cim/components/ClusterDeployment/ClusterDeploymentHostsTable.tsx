@@ -30,20 +30,25 @@ type ClusterDeploymentHostsTableProps = {
   agents: AgentK8sResource[];
   pullSecretSet: boolean;
   skipDisabled?: boolean;
-} & ClusterDeploymentHostsTablePropsActions &
-  WithTestID;
+  hostActions: ClusterDeploymentHostsTablePropsActions;
+  selectedHostIds?: string[];
+  onHostSelected?: (agent: AgentK8sResource, selected: boolean) => void;
+} & WithTestID;
 
 const ClusterDeploymentHostsTable: React.FC<ClusterDeploymentHostsTableProps> = ({
   clusterDeployment,
   agentClusterInstall,
   agents,
   pullSecretSet,
-  ...actions
+  onHostSelected,
+  selectedHostIds,
+  hostActions,
 }) => {
   const cluster = getAICluster({ clusterDeployment, agentClusterInstall, agents, pullSecretSet });
 
   const tableCallbacks = useAgentTableActions({
-    ...actions,
+    ...hostActions,
+    onHostSelected,
     agents,
   });
 
@@ -59,6 +64,7 @@ const ClusterDeploymentHostsTable: React.FC<ClusterDeploymentHostsTableProps> = 
       hosts={cluster.hosts}
       EmptyState={HostsTableEmptyState}
       AdditionalNTPSourcesDialogToggleComponent={AdditionalNTPSourcesDialogToggleWithCluster}
+      selectedHostIds={selectedHostIds}
       {...tableCallbacks}
     />
   );

@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { expandable, IRowData, sortable } from '@patternfly/react-table';
+import { expandable, ICell, IRowData, sortable } from '@patternfly/react-table';
 import { Host, HostsTable, HostsTableActions, HostsTableProps } from '../../../common';
 import { AdditionalNTPSourcesDialogToggle } from '../../../ocm/components/hosts/AdditionaNTPSourceDialogToggle';
 import { AgentK8sResource } from '../../types';
 import { ClusterDeploymentHostsTablePropsActions } from '../ClusterDeployment/types';
-import { getAIHosts } from '../helpers';
+import { getAIHosts, hostToAgent } from '../helpers';
 
 type GetAgentCallback = <R>(
   agentCallback: ((agent: AgentK8sResource) => R) | undefined,
@@ -12,12 +12,7 @@ type GetAgentCallback = <R>(
 ) => ((host: Host) => R) | undefined;
 
 const getAgentCallback: GetAgentCallback = (agentCallback, agents) =>
-  agentCallback
-    ? (host) => {
-        const agent = agents.find((a) => a.metadata?.uid === host.id) as AgentK8sResource;
-        return agentCallback(agent);
-      }
-    : undefined;
+  agentCallback ? (host) => agentCallback(hostToAgent(agents, host)) : undefined;
 
 export const useAgentTableActions = ({
   onDeleteHost,
@@ -26,9 +21,11 @@ export const useAgentTableActions = ({
   canDelete,
   canEditHost,
   canEditRole,
+  onHostSelected,
   agents,
 }: ClusterDeploymentHostsTablePropsActions & {
   agents: AgentK8sResource[];
+  onHostSelected?: (agent: AgentK8sResource, selected: boolean) => void;
 }): HostsTableActions =>
   React.useMemo(
     () => ({
@@ -50,11 +47,26 @@ export const useAgentTableActions = ({
       canDelete: getAgentCallback(canDelete, agents),
       canEditHost: getAgentCallback(canEditHost, agents),
       canEditRole: getAgentCallback(canEditRole, agents),
+      onHostSelected: onHostSelected
+        ? (host: Host, selected: boolean) => {
+            const agent = agents.find((a) => a.metadata?.uid === host.id) as AgentK8sResource;
+            onHostSelected(agent, selected);
+          }
+        : undefined,
     }),
-    [onDeleteHost, onEditHost, onEditRole, canDelete, canEditHost, canEditRole, agents],
+    [
+      onDeleteHost,
+      onEditHost,
+      onEditRole,
+      canDelete,
+      canEditHost,
+      canEditRole,
+      onHostSelected,
+      agents,
+    ],
   );
 
-const defaultColumns = [
+const defaultAgentTableColumns = [
   { title: 'Hostname', transforms: [sortable], cellFormatters: [expandable] },
   { title: 'Role', transforms: [sortable] },
   { title: 'Status', transforms: [sortable] },
@@ -65,33 +77,49 @@ const defaultColumns = [
   { title: '' },
 ];
 
+export const getAgentTableColumns = (
+  patchFunc?: (colIndex: number, colDefault: ICell) => ICell,
+) => {
+  if (patchFunc) {
+    return defaultAgentTableColumns
+      .map((col, colIndex) => patchFunc(colIndex, col))
+      .filter(Boolean);
+  }
+  return defaultAgentTableColumns;
+};
+
 type AgentTableProps = ClusterDeploymentHostsTablePropsActions & {
   agents: AgentK8sResource[];
   className?: string;
   columns?: HostsTableProps['columns'];
   hostToHostTableRow?: HostsTableProps['hostToHostTableRow'];
+  onHostSelected?: (agent: AgentK8sResource, selected: boolean) => void;
+  selectedHostIds?: string[];
 };
 
 const AgentTable: React.FC<AgentTableProps> = ({
   agents,
   className,
-  columns = defaultColumns,
+  columns = getAgentTableColumns(),
   hostToHostTableRow,
-  ...actions
+  selectedHostIds,
+  ...hostActions
 }) => {
   const tableCallbacks = useAgentTableActions({
-    ...actions,
+    ...hostActions,
     agents,
   });
   const restHosts = getAIHosts(agents);
+
   return (
     <HostsTable
       hosts={restHosts}
       EmptyState={() => <div>no hosts</div>}
       columns={columns}
-      className={className}
+      className={`agents-table ${className || ''}`}
       AdditionalNTPSourcesDialogToggleComponent={AdditionalNTPSourcesDialogToggle}
       hostToHostTableRow={hostToHostTableRow}
+      selectedHostIds={selectedHostIds}
       {...tableCallbacks}
     />
   );
