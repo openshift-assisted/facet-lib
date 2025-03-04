@@ -62,7 +62,11 @@ const EditCluster = ({ clusterId }: { clusterId: string }) => {
           <OpenshiftVersionsContextProvider>
             <NewFeatureSupportLevelProvider loadingUi={<ClusterLoading />}>
               <PageSection variant={PageSectionVariants.light}>
-                <ClusterWizardContextProvider cluster={cluster} infraEnv={infraEnv}>
+                <ClusterWizardContextProvider
+                  cluster={cluster}
+                  infraEnv={infraEnv}
+                  isDissconnectedMode={true}
+                >
                   <ClusterWizard
                     cluster={cluster}
                     infraEnv={infraEnv}
