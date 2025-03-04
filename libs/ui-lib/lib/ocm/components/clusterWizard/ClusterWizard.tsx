@@ -21,6 +21,7 @@ type ClusterWizardProps = {
   cluster: Cluster;
   infraEnv: InfraEnv;
   updateInfraEnv: (infraEnvUpdateParams: InfraEnvUpdateParams) => Promise<InfraEnv>;
+  isDissconnectedMode?: boolean;
 };
 
 const ClusterWizard = ({ cluster, infraEnv, updateInfraEnv }: ClusterWizardProps) => {
